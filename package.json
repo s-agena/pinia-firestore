@@ -1,0 +1,33 @@
+{
+  "name": "pinia-firestore",
+  "description": "Pinia with Firestore",
+  "version": "0.0.1",
+  "main": "dist/pinia-firestore.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -fr dist; tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "firebase": "^9.1.3",
+    "pinia": "^2.0.0-rc.13",
+    "typescript": "^4.4.4",
+    "vue": "^3.2.20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s-agena/pinia-firestore.git"
+  },
+  "keywords": [
+    "firestore",
+    "pinia",
+    "typescript",
+    "vue3"
+  ],
+  "author": "Shin Agena",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/s-agena/pinia-firestore/issues"
+  },
+  "homepage": "https://github.com/s-agena/pinia-firestore#readme"
+}
