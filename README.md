@@ -10,7 +10,7 @@ pinia-firestore is a firestore helper library for pinia inspired by vuex fire.
 import { defineStore } from 'pinia'
 import { doc, collection, getFirestore, query, where } from 'firebase/firestore'
 import { initializeApp } from 'firebase/app'
-import * as pinifire from '@/modules/pinifire'
+import * as pinifire from 'pinia-firestore'
 
 type TypeMemo = {
   memo: string
