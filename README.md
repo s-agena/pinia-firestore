@@ -4,7 +4,7 @@ Pinia with Firestore
 
 pinia-firestore is a firestore helper library for pinia inspired by vuex fire.
 
-##　Sample Code
+## Sample Code
 
 ``` typescript
 import { defineStore } from 'pinia'

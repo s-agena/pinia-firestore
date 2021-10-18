@@ -1,12 +1,13 @@
 {
   "name": "pinia-firestore",
   "description": "Pinia with Firestore",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist/pinia-firestore.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -fr dist; tsc",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "release": "npm install; npm run build; npm publish;"
   },
   "dependencies": {
     "firebase": "^9.1.3",
