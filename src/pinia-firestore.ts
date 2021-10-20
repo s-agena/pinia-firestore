@@ -1,7 +1,6 @@
 
 import Vue from 'vue'
-import { Unsubscribe } from 'firebase/firestore'
-import { onSnapshot, DocumentReference, DocumentData, CollectionReference, Query } from 'firebase/firestore'
+import { Unsubscribe, onSnapshot, DocumentReference, DocumentData, CollectionReference, Query } from 'firebase/firestore'
 
 //////////////////
 // Keep the unsubscribe functions.
@@ -72,7 +71,10 @@ export const bind = (piniaInstance: any, param: string, ref: DocumentReference<D
       const docs = [] as any[]
       querySnapshot.forEach((snapshot) => {
         if (_op.log) console.log("[pinia-firestore] listen:", piniaInstance.$id, param, snapshot.data())
-        docs.push(snapshot.data())
+        docs.push({
+          id: snapshot.id,
+          ...snapshot.data()
+        })
       })
       piniaInstance[param] = docs
     })
