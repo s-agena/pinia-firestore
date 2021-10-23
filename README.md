@@ -4,6 +4,19 @@ Pinia with Firestore
 
 pinia-firestore is a firestore helper library for pinia inspired by vuex fire.
 
+
+## Policy
+
+- Please note that this is an experimental code for commercial use.
+- When vuex5 is released, I plan to switch to it.
+
+## Concept
+
+- Using pinia, firebase(firestore) v9 and vue3
+- Typescript support
+- Use of differential update in real-time update (document unit)
+
+
 ## Sample Code
 
 ``` typescript
