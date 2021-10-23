@@ -56,8 +56,6 @@ function remove(id: string, name: string) {
     //　If it has already been registered, it will be unsubscribe.
     delete unsubs[id + ":" + name]
     debug("remove:", id, name, item)
-  } else {
-    debug("remove(fail):", id, name)
   }
 }
 
