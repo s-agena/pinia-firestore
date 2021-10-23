@@ -1,7 +1,7 @@
 {
   "name": "pinia-firestore",
   "description": "Pinia with Firestore",
-  "version": "0.0.12",
+  "version": "0.1.0",
   "main": "dist/pinia-firestore.js",
   "types": "dist/pinia-firestore.d.ts",
   "scripts": {
