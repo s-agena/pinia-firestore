@@ -1,6 +1,6 @@
 
 import Vue from 'vue'
-import { SnapshotMetadata, Unsubscribe, onSnapshot, DocumentReference, DocumentData, CollectionReference, Query } from 'firebase/firestore'
+import { QueryDocumentSnapshot, DocumentSnapshot, SnapshotMetadata, Unsubscribe, onSnapshot, DocumentReference, DocumentData, CollectionReference, Query } from 'firebase/firestore'
 import { StateTree, StoreWithState } from 'pinia'
 
 //////////////////
@@ -71,6 +71,15 @@ type PiniFireDocument = DocumentData & {
   readonly __metadata: SnapshotMetadata
 }
 
+function makePiniFireDocument(snapshot: QueryDocumentSnapshot | DocumentSnapshot): PiniFireDocument {
+  return {
+    __id: snapshot.id,
+    __path: snapshot.ref.path,
+    __metadata: snapshot.metadata,
+    ...snapshot.data()
+  }
+}
+
 export const bind = <ID extends string, S extends StateTree, G, A>
 (piniaInstance: StoreWithState<ID,S,G,A>, field: keyof S, ref: FirestoreReference) => {
   // Delete bound listen
@@ -84,12 +93,7 @@ export const bind = <ID extends string, S extends StateTree, G, A>
     // Receive real-time updates for a single document.
     const unsub = onSnapshot(ref, (snapshot) => {
       debug("listen:", piniaInstance.$id, field.toString(), snapshot.data())
-      piniaInstance.$state[field] = {
-        __id: snapshot.id,
-        __path: snapshot.ref.path,
-        __metadata: snapshot.metadata,
-        ...snapshot.data() || {}
-      } as any
+      piniaInstance.$state[field] = makePiniFireDocument(snapshot) as any
     })
     store(piniaInstance.$id, field.toString(), unsub, ref.type)
   } else {
@@ -101,21 +105,9 @@ export const bind = <ID extends string, S extends StateTree, G, A>
       querySnapshot.docChanges().forEach((change) => {
         debug("listen:", piniaInstance.$id, field.toString(), change.type, change.doc.data())
         if (change.type === "added") {
-          const value: PiniFireDocument = {
-            __id: change.doc.id,
-            __path: change.doc.ref.path,
-            __metadata: change.doc.metadata,
-            ...change.doc.data()
-          }
-          docs.splice(change.newIndex, 0, value)
+          docs.splice(change.newIndex, 0, makePiniFireDocument(change.doc))
         } else if (change.type === 'modified') {
-          const value: PiniFireDocument = {
-            __id: change.doc.id,
-            __path: change.doc.ref.path,
-            __metadata: change.doc.metadata,
-            ...change.doc.data()
-          }
-          docs.splice(change.newIndex, 1, value)
+          docs.splice(change.newIndex, 1, makePiniFireDocument(change.doc))
         } else if (change.type === 'removed') {
           docs.splice(change.oldIndex, 1)
         }
