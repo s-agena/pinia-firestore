@@ -4,5 +4,5 @@ import { createPinia } from 'pinia'
 import { createPiniaFirestore } from '../../../dist/pinia-firestore'
 
 createApp(App).use(createPinia()).use(createPiniaFirestore({
-  log: true
+  debug: true
 })).mount('#app')

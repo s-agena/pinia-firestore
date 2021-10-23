@@ -1,6 +1,21 @@
 
 import Vue from 'vue'
 import { Unsubscribe, onSnapshot, DocumentReference, DocumentData, CollectionReference, Query } from 'firebase/firestore'
+import { StateTree, StoreWithState } from 'pinia'
+
+//////////////////
+// define firestore type
+//////////////////
+
+type FirestoreReference = DocumentReference<DocumentData> | CollectionReference<DocumentData> | Query<DocumentData>
+
+//////////////////
+// Output debug log.
+//////////////////
+
+function debug(message: string, ...data: any[]): void {
+  if (_op.debug) console.log("[pinia-firestore] "+message, data)
+}
 
 //////////////////
 // Keep the unsubscribe functions.
@@ -26,12 +41,12 @@ function store(id: string, name: string, unsub: Unsubscribe, type: string) {
     type,
   }
   unsubs[id + ":" + name] = item
-  if (_op.log) console.log("[pinia-firestore] store:", item)
+  debug("store:", item)
 }
 
 function pick(id: string, name: string): TypeUnsubscribe {
   const item = unsubs[id + ":" + name]
-  if (_op.log) console.log("[pinia-firestore] pick:", id, name, item)
+  debug("pick:", id, name, item)
   return item
 }
 
@@ -40,9 +55,9 @@ function remove(id: string, name: string) {
   if (item !== undefined) {
     //　If it has already been registered, it will be unsubscribe.
     delete unsubs[id + ":" + name]
-    if (_op.log) console.log("[pinia-firestore] remove:", id, name, item)
+    debug("remove:", id, name, item)
   } else {
-    if (_op.log) console.log("[pinia-firestore] remove(fail):", id, name)
+    debug("remove(fail):", id, name)
   }
 }
 
@@ -50,9 +65,11 @@ function remove(id: string, name: string) {
 // External public functions.
 //////////////////
 
-export const bind = (piniaInstance: any, param: string, ref: DocumentReference<DocumentData> | CollectionReference<DocumentData> | Query<DocumentData>) => {
+
+export const bind = <ID extends string, S extends StateTree, G, A>
+(piniaInstance: StoreWithState<ID,S,G,A>, field: keyof S, ref: FirestoreReference) => {
   // Delete bound listen
-  const item = pick(piniaInstance.$id, param)
+  const item = pick(piniaInstance.$id, field.toString())
   if (item !== undefined) {
     item.unsub()
   }
@@ -61,36 +78,43 @@ export const bind = (piniaInstance: any, param: string, ref: DocumentReference<D
   if (ref.type === 'document') {
     // Receive real-time updates for a single document.
     const unsub = onSnapshot(ref, (snapshot) => {
-      if (_op.log) console.log("[pinia-firestore] listen:", piniaInstance.$id, param, snapshot.data())
-      piniaInstance[param] = snapshot.data()
+      debug("listen:", piniaInstance.$id, field.toString(), snapshot.data())
+      piniaInstance.$state[field] = snapshot.data() as any
     })
-    store(piniaInstance.$id, param, unsub, ref.type)
+    store(piniaInstance.$id, field.toString(), unsub, ref.type)
   } else {
     // Receive real-time updates for multiple documents.
     const unsub = onSnapshot(ref, (querySnapshot) => {
       const docs = [] as any[]
+      /*
+      querySnapshot.docChanges().forEach((change) => {
+        console.log("debug:", change)
+        console.log("debug:", change.doc.data())
+      }),
+      */
       querySnapshot.forEach((snapshot) => {
-        if (_op.log) console.log("[pinia-firestore] listen:", piniaInstance.$id, param, snapshot.data())
+        debug("listen:", piniaInstance.$id, field.toString(), snapshot.data())
         docs.push({
           id: snapshot.id,
           ...snapshot.data()
         })
       })
-      piniaInstance[param] = docs
+      piniaInstance.$state[field] = docs as any
     })
-    store(piniaInstance.$id, param, unsub, ref.type)    
+    store(piniaInstance.$id, field.toString(), unsub, ref.type)    
   }
 }
 
-export const unbind = (piniaInstance: any, param: string, val?: any) => {
-  const item = pick(piniaInstance.$id, param)
+export const unbind = <ID extends string, S extends StateTree, G, A>
+(piniaInstance: StoreWithState<ID,S,G,A>, field: keyof S, val?: any) => {
+  const item = pick(piniaInstance.$id, field.toString())
   if (item !== undefined) {
     item.unsub()
-    remove(piniaInstance.$id, param)
+    remove(piniaInstance.$id, field.toString())
 
     // Overwrite with reset value
     if (val !== undefined) {
-      piniaInstance[param] = val
+      piniaInstance.$state[field] = val
     }  
   }
 }
@@ -100,20 +124,20 @@ export const unbind = (piniaInstance: any, param: string, val?: any) => {
 //////////////////
 
 export type Options = {
-  log: boolean
+  debug: boolean
 }
 
 const _op: Options = {
-  log: false
+  debug: false
 }
 
-export function createPiniaFirestore(options: Options | undefined) {
+export function createPiniaFirestore(options?: Options) {
   return {
     install: (app: Vue.App) => {
       if (options !== undefined) {
-        _op.log = options.log
+        _op.debug = options.debug
       }
-      if (_op.log) console.log("install")
+      debug("install")
     }
   }
 }

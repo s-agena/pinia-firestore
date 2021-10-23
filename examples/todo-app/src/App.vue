@@ -3,7 +3,7 @@
   <input v-model.trim="newTodoText" @keyup.enter="addTodo" placeholder="Add new todo" />
   <ul>
     <li v-for="todo, index in todos" v-bind:key="index">
-      <input :value="todo.text" @input="updateTodoText(todo, $event.target.value)" />
+      <input :value="todo.text" @input="updateTodoText(todo, $event.target)" />
       <button @click="removeTodo(todo)">X</button>
     </li>
   </ul>
@@ -34,7 +34,7 @@ const docRefConfig = doc(db, "system/config")
 const useStore = defineStore('todo', {
   state: () => ({
     todos: [],
-    config: {},    
+    config: {},
   }),
   actions: {
     bindRef(name, ref) {
