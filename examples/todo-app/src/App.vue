@@ -11,6 +11,10 @@
   <pre>
     {{ config }}
   </pre>
+  <p>todos:</p>
+  <pre>
+    {{ todos }}
+  </pre>
 </template>
 
 <script>
@@ -66,11 +70,11 @@ export default {
       }
     }
     const updateTodoText = (todo, newText) => {
-      updateDoc(doc(db, 'todos/' + todo.id), { text: newText })
+      updateDoc(doc(db, 'todos/' + todo.__id), { text: newText })
     }
     const removeTodo = (todo) => {
       console.log(todo)
-      deleteDoc(doc(db, 'todos/' + todo.id))
+      deleteDoc(doc(db, 'todos/' + todo.__id))
     }
     const toggleTodos = () => {
       currentTodos = currentTodos === unFinishedTodos ? finishedTodos : unFinishedTodos

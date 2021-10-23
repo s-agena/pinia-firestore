@@ -1,6 +1,6 @@
 
 import Vue from 'vue'
-import { Unsubscribe, onSnapshot, DocumentReference, DocumentData, CollectionReference, Query } from 'firebase/firestore'
+import { SnapshotMetadata, Unsubscribe, onSnapshot, DocumentReference, DocumentData, CollectionReference, Query } from 'firebase/firestore'
 import { StateTree, StoreWithState } from 'pinia'
 
 //////////////////
@@ -65,6 +65,11 @@ function remove(id: string, name: string) {
 // External public functions.
 //////////////////
 
+type PiniFireDocument = DocumentData & {
+  readonly __id: string
+  readonly __path: string
+  readonly __metadata: SnapshotMetadata
+}
 
 export const bind = <ID extends string, S extends StateTree, G, A>
 (piniaInstance: StoreWithState<ID,S,G,A>, field: keyof S, ref: FirestoreReference) => {
@@ -79,27 +84,42 @@ export const bind = <ID extends string, S extends StateTree, G, A>
     // Receive real-time updates for a single document.
     const unsub = onSnapshot(ref, (snapshot) => {
       debug("listen:", piniaInstance.$id, field.toString(), snapshot.data())
-      piniaInstance.$state[field] = snapshot.data() as any
+      piniaInstance.$state[field] = {
+        __id: snapshot.id,
+        __path: snapshot.ref.path,
+        __metadata: snapshot.metadata,
+        ...snapshot.data() || {}
+      } as any
     })
     store(piniaInstance.$id, field.toString(), unsub, ref.type)
   } else {
+    // working area
+    const docs: PiniFireDocument[] = piniaInstance.$state[field]
+    docs.splice(0, docs.length)
     // Receive real-time updates for multiple documents.
     const unsub = onSnapshot(ref, (querySnapshot) => {
-      const docs = [] as any[]
-      /*
       querySnapshot.docChanges().forEach((change) => {
-        console.log("debug:", change)
-        console.log("debug:", change.doc.data())
-      }),
-      */
-      querySnapshot.forEach((snapshot) => {
-        debug("listen:", piniaInstance.$id, field.toString(), snapshot.data())
-        docs.push({
-          id: snapshot.id,
-          ...snapshot.data()
-        })
+        debug("listen:", piniaInstance.$id, field.toString(), change.type, change.doc.data())
+        if (change.type === "added") {
+          const value: PiniFireDocument = {
+            __id: change.doc.id,
+            __path: change.doc.ref.path,
+            __metadata: change.doc.metadata,
+            ...change.doc.data()
+          }
+          docs.splice(change.newIndex, 0, value)
+        } else if (change.type === 'modified') {
+          const value: PiniFireDocument = {
+            __id: change.doc.id,
+            __path: change.doc.ref.path,
+            __metadata: change.doc.metadata,
+            ...change.doc.data()
+          }
+          docs.splice(change.newIndex, 1, value)
+        } else if (change.type === 'removed') {
+          docs.splice(change.oldIndex, 1)
+        }
       })
-      piniaInstance.$state[field] = docs as any
     })
     store(piniaInstance.$id, field.toString(), unsub, ref.type)    
   }
@@ -115,7 +135,7 @@ export const unbind = <ID extends string, S extends StateTree, G, A>
     // Overwrite with reset value
     if (val !== undefined) {
       piniaInstance.$state[field] = val
-    }  
+    }
   }
 }
 
