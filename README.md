@@ -32,14 +32,14 @@ export const useMemoStore = defineStore('memo', {
 
   actions: {
     bind() {
-      pinifire.bind(this, 'memo', doc(getFirestore(app), "memos", "000"))
-      pinifire.bind(this, 'memos', collection(getFirestore(app), "memos"))
-      pinifire.bind(this, 'memosIsActive', query(collection(getFirestore(app), "memos"), where("isActive", "==", true)))
+      bind(this, 'memo', doc(getFirestore(app), "memos/000"))
+      bind(this, 'memos', collection(getFirestore(app), "memos"))
+      bind(this, 'memosIsActive', query(collection(getFirestore(app), "memos"), where("isActive", "==", true)))
     },
     unbind() {
-      pinifire.unbind(this, 'memo', {})
-      pinifire.unbind(this, 'memos', [])
-      pinifire.unbind(this, 'memosIsActive', [])
+      unbind(this, 'memo')
+      unbind(this, 'memos')
+      unbind(this, 'memosIsActive')
     }
   }
 })
