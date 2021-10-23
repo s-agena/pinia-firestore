@@ -117,16 +117,24 @@ export const bind = <ID extends string, S extends StateTree, G, A>
   }
 }
 
+type UnbindOptions = {
+  reset: boolean
+}
+
 export const unbind = <ID extends string, S extends StateTree, G, A>
-(piniaInstance: StoreWithState<ID,S,G,A>, field: keyof S, val?: any) => {
+(piniaInstance: StoreWithState<ID,S,G,A>, field: keyof S, options: UnbindOptions = { reset: true }) => {
   const item = pick(piniaInstance.$id, field.toString())
   if (item !== undefined) {
     item.unsub()
     remove(piniaInstance.$id, field.toString())
 
     // Overwrite with reset value
-    if (val !== undefined) {
-      piniaInstance.$state[field] = val
+    if (options.reset) {
+      if (item.type === 'document') {
+        piniaInstance.$state[field] = {} as any
+      } else {
+        piniaInstance.$state[field] = [] as any
+      }
     }
   }
 }
@@ -135,20 +143,18 @@ export const unbind = <ID extends string, S extends StateTree, G, A>
 // Functions for plugins.
 //////////////////
 
-export type Options = {
+export type CreateOptions = {
   debug: boolean
 }
 
-const _op: Options = {
+const _op: CreateOptions = {
   debug: false
 }
 
-export function createPiniaFirestore(options?: Options) {
+export function createPiniaFirestore(options: CreateOptions = { debug: false }) {
   return {
     install: (app: Vue.App) => {
-      if (options !== undefined) {
-        _op.debug = options.debug
-      }
+      _op.debug = options.debug
       debug("install")
     }
   }
