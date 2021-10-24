@@ -63,19 +63,12 @@ function remove(id: string, name: string) {
 // External public functions.
 //////////////////
 
-type PiniFireDocument = DocumentData & {
-  readonly __id: string
-  readonly __path: string
-  readonly __metadata: SnapshotMetadata
-}
-
-function makePiniFireDocument(snapshot: QueryDocumentSnapshot | DocumentSnapshot): PiniFireDocument {
-  return {
-    __id: snapshot.id,
-    __path: snapshot.ref.path,
-    __metadata: snapshot.metadata,
-    ...snapshot.data()
-  }
+function makeDocumentData(snapshot: QueryDocumentSnapshot | DocumentSnapshot): DocumentData {
+  let doc = snapshot.data() || {}
+  doc = Object.defineProperty(doc, '__id', { value: snapshot.id })
+  doc = Object.defineProperty(doc, '__path', { value: snapshot.ref.path })
+  doc = Object.defineProperty(doc, '__metadata', { value: snapshot.metadata })
+  return doc
 }
 
 export const bind = <ID extends string, S extends StateTree, G, A>
@@ -91,7 +84,7 @@ export const bind = <ID extends string, S extends StateTree, G, A>
     // Receive real-time updates for a single document.
     const unsub = onSnapshot(ref, (snapshot) => {
       debug("listen:", piniaInstance.$id, field.toString(), snapshot.data())
-      piniaInstance.$state[field] = makePiniFireDocument(snapshot) as any
+      piniaInstance.$state[field] = makeDocumentData(snapshot) as any
     },
     (error) => {
       debug("error", error)
@@ -101,16 +94,16 @@ export const bind = <ID extends string, S extends StateTree, G, A>
     store(piniaInstance.$id, field.toString(), unsub, ref.type)
   } else {
     // working area
-    const docs: PiniFireDocument[] = piniaInstance.$state[field]
+    const docs: DocumentData[] = piniaInstance.$state[field]
     docs.splice(0, docs.length)
     // Receive real-time updates for multiple documents.
     const unsub = onSnapshot(ref, (querySnapshot) => {
       querySnapshot.docChanges().forEach((change) => {
         debug("listen:", piniaInstance.$id, field.toString(), change.type, change.doc.data())
         if (change.type === "added") {
-          docs.splice(change.newIndex, 0, makePiniFireDocument(change.doc))
+          docs.splice(change.newIndex, 0, makeDocumentData(change.doc))
         } else if (change.type === 'modified') {
-          docs.splice(change.newIndex, 1, makePiniFireDocument(change.doc))
+          docs.splice(change.newIndex, 1, makeDocumentData(change.doc))
         } else if (change.type === 'removed') {
           docs.splice(change.oldIndex, 1)
         }

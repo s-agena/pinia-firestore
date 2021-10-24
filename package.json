@@ -8,7 +8,8 @@
     "test": "jest",
     "build": "rm -fr dist; tsc",
     "prepublishOnly": "npm run build",
-    "release": "npm install; npm run build; npm publish;"
+    "release": "npm install; npm run build; npm publish;",
+    "emurator": "firebase emulators:start --only firestore"
   },
   "devDependencies": {
     "@firebase/testing": "^0.20.11",

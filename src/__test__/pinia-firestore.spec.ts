@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia, defineStore } from 'pinia' 
-import { bind, unbind, createPiniaFirestore } from '../src/pinia-firestore'
+import { bind, unbind, createPiniaFirestore } from '../pinia-firestore'
 import { initializeApp } from 'firebase/app'
 import { connectFirestoreEmulator, getFirestore, doc, collection, setDoc, deleteDoc } from 'firebase/firestore'
 
