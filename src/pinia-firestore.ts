@@ -92,6 +92,11 @@ export const bind = <ID extends string, S extends StateTree, G, A>
     const unsub = onSnapshot(ref, (snapshot) => {
       debug("listen:", piniaInstance.$id, field.toString(), snapshot.data())
       piniaInstance.$state[field] = makePiniFireDocument(snapshot) as any
+    },
+    (error) => {
+      debug("error", error)
+      // https://firebase.google.com/docs/firestore/query-data/listen?hl=ja#handle_listen_errors
+      remove(piniaInstance.$id, field.toString())
     })
     store(piniaInstance.$id, field.toString(), unsub, ref.type)
   } else {
@@ -110,6 +115,11 @@ export const bind = <ID extends string, S extends StateTree, G, A>
           docs.splice(change.oldIndex, 1)
         }
       })
+    },
+    (error) => {
+      debug("error", error)
+      // https://firebase.google.com/docs/firestore/query-data/listen?hl=ja#handle_listen_errors
+      remove(piniaInstance.$id, field.toString())
     })
     store(piniaInstance.$id, field.toString(), unsub, ref.type)    
   }
