@@ -7,7 +7,7 @@ import { StateTree, StoreWithState } from 'pinia'
 // define firestore type
 //////////////////
 
-type FirestoreReference = DocumentReference<DocumentData> | CollectionReference<DocumentData> | Query<DocumentData>
+export type FirestoreReference = DocumentReference<DocumentData> | CollectionReference<DocumentData> | Query<DocumentData>
 
 //////////////////
 // Output debug log.
