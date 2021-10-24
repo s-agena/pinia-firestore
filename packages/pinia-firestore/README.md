@@ -20,42 +20,70 @@ pinia-firestore is a firestore helper library for pinia inspired by vuex fire.
 ## Sample Code
 
 ``` typescript
-import { defineStore } from 'pinia'
-import { doc, collection, getFirestore, query, where } from 'firebase/firestore'
-import { initializeApp } from 'firebase/app'
-import * as pinifire from 'pinia-firestore'
-
-type TypeMemo = {
-  memo: string
-}
+import { initializeApp } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+} from "firebase/firestore";
+import { defineStore } from "pinia";
+import { bind } from "pinia-firestore";
 
 const app = initializeApp({
-  projectId: 'agena-repo'
-})
+  projectId: "agena-repo",
+});
 
-export const useMemoStore = defineStore('memo', {
+const db = getFirestore(app);
+const colRefTodos = collection(db, "todos");
+const unFinishedTodos = query(colRefTodos, where("finished", "==", false));
+const finishedTodos = query(colRefTodos, where("finished", "==", true));
+let currentTodos = unFinishedTodos;
+
+export type TypeTodo = {
+  __id: string;
+  text: string;
+};
+
+export const useTodosStore = defineStore({
+  id: "todos",
   state: () => ({
-    memo: { memo: "init" } as TypeMemo,
-    memos: [] as TypeMemo[],
-    memosIsActive: [] as TypeMemo[],
+    todos: [] as TypeTodo[],
   }),
-
   getters: {
-  },
-
-  actions: {
-    bind() {
-      bind(this, 'memo', doc(getFirestore(app), "memos/000"))
-      bind(this, 'memos', collection(getFirestore(app), "memos"))
-      bind(this, 'memosIsActive', query(collection(getFirestore(app), "memos"), where("isActive", "==", true)))
+    count: (state) => {
+      return state.todos.length;
     },
-    unbind() {
-      unbind(this, 'memo')
-      unbind(this, 'memos')
-      unbind(this, 'memosIsActive')
-    }
-  }
-})
+  },
+  actions: {
+    toggleBind() {
+      currentTodos =
+        currentTodos === finishedTodos ? unFinishedTodos : finishedTodos;
+      bind(this, "todos", currentTodos);
+    },
+    init() {
+      bind(this, "todos", currentTodos);
+    },
+    addTodo(text: string) {
+      addDoc(colRefTodos, {
+        finished: false,
+        text,
+        create: serverTimestamp(),
+      });
+    },
+    updateTodo(id: string, text: string) {
+      updateDoc(doc(db, "todos/" + id), { text });
+    },
+    removeTodo(id: string) {
+      deleteDoc(doc(db, "todos/" + id));
+    },
+  },
+});
 
 ```
 
