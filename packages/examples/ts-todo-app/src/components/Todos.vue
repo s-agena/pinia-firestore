@@ -1,4 +1,5 @@
 <template>
+  <p v-if="todos.isLoading">Loading ...</p>
   <button @click="toggleTodos">Toggle todos</button> count {{ todos.count
   }}<br />
   <input
@@ -33,9 +34,8 @@ const updateTodo = (id: string, event: Event) => {
 const removeTodo = (id: string) => {
   todos.removeTodo(id);
 };
-const toggleTodos = async () => {
-  await todos.toggleBind();
-  console.log("todos length", todos.todos.length);
+const toggleTodos = () => {
+  todos.toggleBind();
 };
 todos.init();
 </script>

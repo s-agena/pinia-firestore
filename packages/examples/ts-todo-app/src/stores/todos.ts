@@ -34,6 +34,7 @@ export const useTodosStore = defineStore({
   id: "todos",
   state: () => ({
     todos: [] as (TypeTodo & DocumentProperties)[],
+    isLoading: false,
   }),
   getters: {
     count: (state) => {
@@ -44,10 +45,14 @@ export const useTodosStore = defineStore({
     async toggleBind() {
       currentTodos =
         currentTodos === finishedTodos ? unFinishedTodos : finishedTodos;
+      this.isLoading = true;
       await bind(this, "todos", currentTodos);
+      this.isLoading = false;
     },
-    init() {
-      bind(this, "todos", currentTodos);
+    async init() {
+      this.isLoading = true;
+      await bind(this, "todos", currentTodos);
+      this.isLoading = false;
     },
     addTodo(text: string) {
       const addData: TypeTodo = {
