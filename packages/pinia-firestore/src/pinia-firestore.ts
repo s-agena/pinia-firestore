@@ -149,7 +149,6 @@ export const bind = <ID extends string, S extends StateTree, G, A>(
       const unsub = onSnapshot(
         ref,
         (querySnapshot) => {
-          console.log("change len", querySnapshot.docChanges().length);
           querySnapshot.docChanges().forEach((change) => {
             debug(
               "listen:",
