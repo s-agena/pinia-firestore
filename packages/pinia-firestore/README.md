@@ -31,9 +31,10 @@ import {
   deleteDoc,
   doc,
   serverTimestamp,
+  FieldValue,
 } from "firebase/firestore";
 import { defineStore } from "pinia";
-import { bind } from "pinia-firestore";
+import { bind, DocumentProperties } from "pinia-firestore";
 
 const app = initializeApp({
   projectId: "agena-repo",
@@ -46,14 +47,16 @@ const finishedTodos = query(colRefTodos, where("finished", "==", true));
 let currentTodos = unFinishedTodos;
 
 export type TypeTodo = {
-  __id: string;
+  finished: boolean;
   text: string;
+  create: FieldValue;
 };
 
 export const useTodosStore = defineStore({
   id: "todos",
   state: () => ({
-    todos: [] as TypeTodo[],
+    todos: [] as (TypeTodo & DocumentProperties)[],
+    isLoading: false,
   }),
   getters: {
     count: (state) => {
@@ -61,20 +64,25 @@ export const useTodosStore = defineStore({
     },
   },
   actions: {
-    toggleBind() {
+    async toggleBind() {
       currentTodos =
         currentTodos === finishedTodos ? unFinishedTodos : finishedTodos;
-      bind(this, "todos", currentTodos);
+      this.isLoading = true;
+      await bind(this, "todos", currentTodos);
+      this.isLoading = false;
     },
-    init() {
-      bind(this, "todos", currentTodos);
+    async init() {
+      this.isLoading = true;
+      await bind(this, "todos", currentTodos);
+      this.isLoading = false;
     },
     addTodo(text: string) {
-      addDoc(colRefTodos, {
+      const addData: TypeTodo = {
         finished: false,
         text,
         create: serverTimestamp(),
-      });
+      };
+      addDoc(colRefTodos, addData);
     },
     updateTodo(id: string, text: string) {
       updateDoc(doc(db, "todos/" + id), { text });
