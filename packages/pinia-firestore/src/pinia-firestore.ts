@@ -97,8 +97,10 @@ export const bind = <ID extends string, S extends StateTree, G, A>(
   field: keyof S,
   ref: FirestoreReference
 ): Promise<void> => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    // Notify the completion of the first update
     let notified = false;
+
     // Delete bound listen
     const item = pick(piniaInstance.$id, field.toString());
     if (item !== undefined) {
@@ -134,7 +136,7 @@ export const bind = <ID extends string, S extends StateTree, G, A>(
           // Notify the completion of the first update
           if (!notified) {
             notified = true;
-            resolve();
+            reject(error);
           }
         }
       );
@@ -179,7 +181,7 @@ export const bind = <ID extends string, S extends StateTree, G, A>(
           // Notify the completion of the first update
           if (!notified) {
             notified = true;
-            resolve();
+            reject(error);
           }
         }
       );
