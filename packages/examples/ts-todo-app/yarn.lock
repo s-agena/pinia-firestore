@@ -7582,10 +7582,10 @@ pify@^4.0.1:
   resolved "https://registry.yarnpkg.com/pify/-/pify-4.0.1.tgz#4b2cd25c50d598735c50292224fd8c6df41e3231"
   integrity sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==
 
-pinia-firestore@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/pinia-firestore/-/pinia-firestore-0.2.0.tgz#60a70ccd54e49014407e0b1d7a82cf2646392880"
-  integrity sha512-JKOpnC7/mwuTpbK9TSm6uynN+0C1x69YZeHsorA7cncoDAZpGkTl9nqsiVYbjO17vikgRL+iBBbFVN56C5geuQ==
+pinia-firestore@0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/pinia-firestore/-/pinia-firestore-0.2.1.tgz#b60cf528d4e2c4ff15a2cee26697c8ae795d40f5"
+  integrity sha512-O62nabrtPwVR7564iubaN85G/xGssRoHs7K53kjDjwybK56uDE1et7jDpTYu2F50qskFqZeJ+8bml05q3XO24g==
 
 pinia@^2.0.0-rc.14:
   version "2.0.0-rc.14"

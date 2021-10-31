@@ -2,13 +2,14 @@
 
 Pinia with Firestore
 
-pinia-firestore is a firestore helper library for pinia inspired by vuex fire.
+pinia-firestore is a firestore helper library for [pinia](https://pinia.esm.dev/) inspired by [vuexfire](https://vuefire.vuejs.org/vuexfire/).
 
 
 ## Policy
 
 - Please note that this is an experimental code for commercial use.
 - When vuex5 is released, I plan to switch to it.
+
 
 ## Concept
 
@@ -95,10 +96,13 @@ export const useTodosStore = defineStore({
 
 ```
 
+
 ## Caution
 
 Use v9 for firebase library.
 
+
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)
+
