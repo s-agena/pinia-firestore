@@ -25,6 +25,10 @@
     "type": "git",
     "url": "git+https://github.com/s-agena/pinia-firestore.git"
   },
+  "files": [
+    "dist",
+    "!dist/__test__"
+  ],
   "keywords": [
     "firestore",
     "pinia",
